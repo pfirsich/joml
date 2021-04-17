@@ -7,7 +7,8 @@ It's essentially a saner YAML/JSON (for humans) hybrid with a bunch of stuff tak
 
 * UTF-8
 * keys are case-sensitive
-* Newline is LF or CR (should I just allow LF and CR LF?)
+* Newline is LF (0x0A) or CRLF (0x0D 0x0A)
+* Whitespace is space (0x20) or tab (0x09)
 
 # Comments
 A single-comment starts wherever a `#` or `//` occurs wherever it is not part of a double-quoted string and ends with newline, everything between that is a comment
@@ -100,9 +101,24 @@ colors: {
 
 # Open Questions
 ## Null
-Should simply not defining a value result in a special null value? (e.g. `key1:`). *I don't like this*
-Should there be a way to represent a special null value explicitly? (e.g. `key1: null`).
-Should this value be different from the absence of a value?
+* Should simply not defining a value result in a special null value? (e.g. `key1:`). *I don't like this*
+* Should there be a way to represent a special null value explicitly? (e.g. `key1: null`).
+* Should this value be different from the absence of a value?
+
+## Newlines
+* Should CRLF be supported? Probably for practicality reasons, but it's annoying to implement
+
+## Strings
+* More escape characters? You can do most of them with \x if you have to. But maybe the common/convenient ones (the ones TOML supports: https://toml.io/en/v1.0.0#string - \b, \t, \n, \f, \r, \", \\)?
+* Should escaping backlash only be necessary if the following character is not part of a valid escape sequence (so `"foobar\foobar"` is valid)? I think this is kinda cool, but can lead to sneaky errors, like when typing a windows path: `E:\Users\Joel\directory\notherdir\file` (\n is going to be a newline).
+* Should there be literal strings (with single quotes) like TOML has them, where no escaping is performed?
+* Should I have unicode escape sequences? (`\uXXXX` and `\UXXXXXXXX`)
+
+## Comments
+* Should I allow `//` and `/**/` comments? I'm not quite sure how necessary multi-line comments are.
+
+## Types
+* I would like to have had type-annotations in the past. Should it be possible to prepend values with a type (`position: (vec2) [0, 0]` or `bytes: [hex] "baadf00d"`) and the type name would be saved alongside the value. If the type name is a builtin type, it will do conversions. This would be cool, but needs to be justified WELL, because it increases complexity. I am not at all decided on the syntax.
 
 # Notes For Later
 ## Mandatory String Quotation
