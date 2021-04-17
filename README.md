@@ -111,6 +111,9 @@ colors: {
 ## Newlines
 * Should CRLF be supported? Probably for practicality reasons, but it's annoying to implement *Yes, Windows exists and Windows users are less likely to know what different line endings are.*
 
+## Dictionaries
+I think that dictionaries should absolutely be ordered. In that case duplicate keys can be easily resolved by having a later occurence override the earlier one. It remains to be decided whether all elements should be saved, only the latest (in the document) value of a duplicate key should be saved or whether an error should be generated if a key is used multiple times.
+
 ## Strings
 * More escape characters? You can do most of them with \x if you have to. But maybe the common/convenient ones (the ones TOML supports: https://toml.io/en/v1.0.0#string - \b, \t, \n, \f, \r, \", \\. Most of these I have never ever used in over a decade of programming. My subset would be: \t, \n, \r, \", \\)? *Yes, I need more, because people will use them and then they will be confused when that didn't work.*
 * Should escaping backlash only be necessary if the following character is not part of a valid escape sequence (so `"oof\oof"` is valid)? I think this is kinda cool, but can lead to sneaky errors, like when typing a windows path: `E:\Users\Joel\directory\notherdir\file` (\n is going to be a newline). *Using \ for an invalid escape sequence should always error. Different languages handle this different, so that the end result could surprise people, which is not good in this case.*
