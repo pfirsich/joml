@@ -116,7 +116,7 @@ colors: {
 ```
 
 ## Parsers
-I am developing a reference parser alongside this specification in [joml-cpp](pfirsich/joml-cpp).
+I am developing a reference parser alongside this specification in [joml-cpp](https://github.com/pfirsich/joml-cpp).
 
 ## Open Questions
 ### Null
