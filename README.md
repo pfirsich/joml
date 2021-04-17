@@ -1,5 +1,5 @@
 # General
-This format is not intended to exchange structured data read and written by machines (like JSON is commonly used as), but rather as a format read and written by people and read by machines.
+This format is not intended to exchange structured data read and written by machines (like JSON is commonly used as), but rather as a format read and written by people and read by machines (like TOML and YAML).
 
 It should be easy to integrate, which means that a fully specification conformant parser should be easy to write and fairly small.
 
@@ -8,22 +8,6 @@ It's essentially a saner YAML/JSON (for humans) hybrid with a bunch of stuff tak
 * UTF-8
 * keys are case-sensitive
 * Newline is LF or CR (should I just allow LF and CR LF?)
-
-# Notes For Later
-## Mandatory String Quotation
-optional quotation would make this invalid (the comma separator is at fault):
-```yaml
-key1: this is a sentence, that I really like
-key2: something
-```
-
-I severely dislike that magic value (like true, false maybe null) can only be identified after being parsed as a string. If you have a subtly malformed number, it would also just be interpreted as a string (e.g. `1ê-6` or maybe some invisible unicode codepoints/whitespace in there), when you actually want an error.
-
-# Open Questions
-## Null
-Should simply not defining a value result in a special null value? (e.g. `key1:`). *I don't like this*
-Should there be a way to represent a special null value explicitly? (e.g. `key1: null`).
-Should this value be different from the absence of a value?
 
 # Comments
 A single-comment starts wherever a `#` or `//` occurs wherever it is not part of a double-quoted string and ends with newline, everything between that is a comment
@@ -113,3 +97,19 @@ colors: {
     text: [0, 0, 0]
 }
 ```
+
+# Open Questions
+## Null
+Should simply not defining a value result in a special null value? (e.g. `key1:`). *I don't like this*
+Should there be a way to represent a special null value explicitly? (e.g. `key1: null`).
+Should this value be different from the absence of a value?
+
+# Notes For Later
+## Mandatory String Quotation
+optional quotation would make this invalid (the comma separator is at fault):
+```yaml
+key1: this is a sentence, that I really like
+key2: something
+```
+
+I severely dislike that magic value (like true, false maybe null) can only be identified after being parsed as a string. If you have a subtly malformed number, it would also just be interpreted as a string (e.g. `1ê-6` or maybe some invisible unicode codepoints/whitespace in there), when you actually want an error.
