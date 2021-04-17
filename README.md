@@ -12,16 +12,17 @@ It's essentially a saner YAML/JSON (for humans) hybrid with a bunch of stuff tak
 * Whitespace is space (0x20) or tab (0x09)
 
 ## Comments
-A single-comment starts wherever a `#` occurs wherever it is not part of a double-quoted string and ends with newline, everything between that is a comment
+A single-comment starts wherever a `#` occurs outside of a string and ends with a newline.
 
-## Key/Value Pair
-A key must be a string and may be quoted. They are case-sensitive.
+## Key-Value Pairs
+A key must be a string and may be quoted. They are case-sensitive. Values can be any of the ones described in the following sections.
 ```yaml
 key2: "value2"
 keys are strings and can contain spaces: true
 "they may be ::\"quoted\"::, too": true
 ```
-Key-value pairs may be separated by a newline or a comma!
+
+Key-value pairs may be separated by a newline or a comma:
 ```yaml
 key1: "value1", key2: "value2"
 ```
@@ -57,7 +58,7 @@ strm3: "Multi\nLine\nString" # equivalent to the one above
 ```
 
 ## Numbers
-JOML can contain either signed integer or floating point numbers.
+### Integers
 ```yaml
 num1: +1
 num2: 2
@@ -65,6 +66,10 @@ num3: -12
 num4: 0xbaadf00d
 num5: 0o0123567
 num6: 0b1110101
+```
+
+### Floats
+```yaml
 num7: +1.0
 num8: 3.1415
 num9: -0.01
@@ -77,13 +82,13 @@ num15: nan
 num15: -nan
 ```
 
-## Boolean
+## Booleans
 ```yaml
 bool1: true
 bool1: false
 ```
 
-## Array
+## Arrays
 Arrays are surrounded by `[` and `]`. Their values may also be separated by either a newline or a comma.
 ```yaml
 array1: [1, 2, 3]
@@ -103,7 +108,7 @@ array4: [
 ]
 ```
 
-## Dictionary
+## Dictionaries
 The document itself is a dictionary.
 Dictionaries other than the root of the document are surrounded by `{` and `}`.
 The same rules (as for the document and for arrays) regarding separation of values apply.
