@@ -130,25 +130,23 @@ colors: {
 I am developing a reference parser alongside this specification in [joml-cpp](https://github.com/pfirsich/joml-cpp).
 
 ## Open Questions
-### Null
-* Should simply not defining a value result in a special null value? (e.g. `key1:`). *I don't like this. It makes the parser more complicated and it often looks like a mistake.*
-* Should there be a way to represent a special null value explicitly? (e.g. `key1: null`). *Plenty of people are lacking null in TOML, so I shall add it.*
-* Should this value be different from the absence of a value? *Yes it should be different, because without it it, there would be less of a point for the whole feature. It gives you the option to "override" stuff as empty.*
+### UTF-8 in Strings
+I am not sure if strings should be utf-8 strings or should just be byte arrays. Personally I have wanted to include arbitrary binary data in JSON strings (or other config files) before, but it is sadly not possible, as there are only `\uHHHH` escape sequences. `\xHH` in YAML will just provide a shorter way to represent code points below U+7F. In C/C++ and Python for example it gives you the option to represent arbitrary bytes though. For example: In C++ `\xFF` will represent the byte sequence `FF`, when in YAML `\xFF` will represent the UTF-8 byte sequence `C3 BF`. With the former behaviour being called "bytes" and the latter being called "unicode" in the following, some common programming languages behave like this:
 
-### Newlines
-* Should CRLF be supported? Probably for practicality reasons, but it's annoying to implement *Yes, Windows exists and Windows users are less likely to know what different line endings are.*
+| Language   | Behaviour                             |
+|------------|---------------------------------------|
+| JavaScript | unicode                               |
+| Python 2   | bytes                                 |
+| Python 3   | unicode (unless using `bytes` object) |
+| Ruby       | bytes                                 |
+| Lua        | bytes                                 |
+| Rust       | error                                 |
+| Java       | error                                 |
+
+This is not simply a question of what `\xHH` should do, but rather a much bigger question of whether it should be allowed to specify non-UTF-8 strings in general and by extension if JOML should be allowed to serialize/deserialize them. All the other popular configuration languages (and JSON) do not allow non-unicode strings, but I think it could be very useful. Not enforcing an encoding at a level deeper than simply writing at the top of this document might lead to chaotic situations in which every does what they want though. For now the reference parser will read arbitrary bytes from `\xHH` escape sequences, but it's already a significant problem for the tests, because they are specified using JSON.
 
 ### Dictionaries
 I think that dictionaries should absolutely be ordered. In that case duplicate keys can be easily resolved by having a later occurence override the earlier one. It remains to be decided whether all elements should be saved, only the latest (in the document) value of a duplicate key should be saved or whether an error should be generated if a key is used multiple times.
-
-### Strings
-* More escape characters? You can do most of them with \x if you have to. But maybe the common/convenient ones (the ones TOML supports: https://toml.io/en/v1.0.0#string - \b, \t, \n, \f, \r, \", \\. Most of these I have never ever used in over a decade of programming. My subset would be: \t, \n, \r, \", \\)? *Yes, I need more, because people will use them and then they will be confused when that didn't work.*
-* Should escaping backlash only be necessary if the following character is not part of a valid escape sequence (so `"oof\oof"` is valid)? I think this is kinda cool, but can lead to sneaky errors, like when typing a windows path: `E:\Users\Joel\directory\notherdir\file` (\n is going to be a newline). *Using \ for an invalid escape sequence should always error. Different languages handle this differently, so that the end result could surprise people, which is not good.*
-* Should there be literal strings (with single quotes) like TOML has them, where no escaping is performed? *No, I think it's really useful and nice to have, but not at all necessary and no one will ever do this "instinctively" and then be surprised that it doesn't work. Also if you don't quite know the language well enough, finding backslashes in literal strings might just look like a mistake. I might change my mind on this later.*
-* Should I have unicode escape sequences? (`\uXXXX` and `\UXXXXXXXX`) *The best reason for doing this is that everyone has it and people will be surprised if it's not there and it doesn't add too much complexity by itself.*
-
-### Comments
-* Should I allow `//` and `/**/` comments? I'm not quite sure how necessary multi-line comments are. *Every usable editor on the planet will help you comment multiple lines trivially. The extra complexity, even if it is very little, cannot be justified. And if there are no C style multi-line comments, there should be no C-style single line comments either.*
 
 ### Types / Annotations
 I would like to have had type-annotations in the past. Should it be possible to prepend values with a type (`position: (vec2) [0, 0], color: (color) [1, 0, 0]` or `bytes: <hex> "baadf00d"`) and the type name would be saved alongside the value.
@@ -197,3 +195,16 @@ The sign is not used and it's optional. I personally think that there is not muc
 
 ### Digit Separators
 They are very useful and good, but most programming languages' "toInt"/"toNumber" or similar do not support them. And the parser should be easy to build.
+
+### null
+* I decided against allowing simply omitting a value (just `key:`), because it makes the parser more complicated and it often looks like a mistake.
+* I wasn't sure whether to add null at all, but people are lacking it in TOML, so I think it should be "fixed" in JOML. There are also some use cases (for example *overwriting* a value that was *derived* from another object with an empty value).
+* Because of the example above assigning null ist also different from the simple absence of a value. If they were the same that would also defeat the point of `null` in general.
+
+### Strings
+* Escape sequences were added, because people WILL use them and then be surprised if it doesn't work, even though you can technically do most of them with `\xHH`. I simply picked the ones supported by JSON, because it's the smallest set I have found and it has all the important ones.
+* I decided against only optionally having to escape backslash, i.e. if the following character is not part of a valid escape sequence (e.g. `oof\oof` would be valid string containing a backslash), but it could lead to sneaky error, or example when using Windows paths: `E:\Users\Joel\directory\file`. It is better to just always error if a backslash is used without a valid escape sequence. Also different programming languages handle this differently, so to avoid people getting unexpected results, there should be more errors, not less.
+* There are no literal strings (like TOML), because though they are very useful and nice to have, they are not at all necessary and no one will ever do this "instinctively" just to be surprised that it doesn't work. Also if you don't quite know JOML well enough yet, it would rather look like a mistake to encounter backslashes outside of a valid escape sequence.
+
+### Comments
+* There are no multi-line comments, because every usable editor on the planet will help you comment multiple lines trivially. The extra complexity, even if it is minimal, cannot be justified because of that.
