@@ -40,7 +40,7 @@ str1: "Enclosed in double-quotes"
 str2: "Escape \"quote\" and backslash \\ with backslash"
 str3: "Arbitrary byte sequence with \x00\x01\x02"
 str4: "Unicode escapes: \u20ac (€) \U0001D49C (𝒜)"
-str5: "Other escape characters: \t, \n, \r"
+str5: "Other escape characters: \t, \n, \r, \f, \b" # the ones supported by JSON
 ```
 
 Multi-line strings also use double quotes and may use trimming
@@ -194,3 +194,6 @@ from IEEE-754 (2008):
 Conversion of a quiet NaN in a supported format to an external character sequence shall produce a language-defined one of “nan” or a sequence that is equivalent except for case (e.g., “NaN”), with an optional preceding sign. (This standard does not interpret the sign of a NaN.)
 ```
 The sign is not used and it's optional. I personally think that there is not much of a difference. Why should I keep the sign, when the payload is ignored?
+
+### Digit Separators
+They are very useful and good, but most programming languages' "toInt"/"toNumber" or similar do not support them. And the parser should be easy to build.
