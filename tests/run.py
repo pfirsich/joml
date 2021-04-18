@@ -28,7 +28,7 @@ def run_test(args, test):
 
     if os.path.isfile(output_reference_path):
         if res.returncode != 0:
-            fail("parsing failed", res.stderr)
+            fail("parsing failed", res.stderr.decode("utf-8"))
             return False
         else:
             parsed = json.loads(res.stdout)
@@ -36,20 +36,20 @@ def run_test(args, test):
                 parsed_reference = json.load(f)
             dump = lambda x: json.dumps(x, sort_keys=True)
             if dump(parsed) != dump(parsed_reference):
-                fail("output differs", res.stdout)
+                fail("output differs", res.stdout.decode("utf-8"))
                 return False
             else:
                 print(pass_string)
                 return True
     elif os.path.isfile(error_reference_path):
         if res.returncode == 0:
-            fail("parsing succeeded", res.stdout)
+            fail("parsing succeeded", res.stdout.decode("utf-8"))
             return False
         else:
             with open(error_reference_path) as f:
                 error_reference = f.read()
             if not error_reference in res.stderr.decode("utf-8"):
-                fail("wrong error", res.stderr)
+                fail("wrong error", res.stderr.decode("utf-8"))
                 return False
             else:
                 print(pass_string)
