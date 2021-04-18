@@ -4,7 +4,7 @@ This format is not intended to exchange structured data read and written by mach
 
 It should be easy to integrate, which means that a fully specification conformant parser should be easy to write and fairly small. To state it clearly: A key goal is simplicty.
 
-It's essentially a saner YAML/JSON (for humans) hybrid with a bunch of stuff taken from the TOML spec.
+It's essentially a saner YAML/JSON (for humans) hybrid with **a bunch** of stuff taken from the TOML spec.
 
 ## Encoding
 * UTF-8
@@ -59,6 +59,8 @@ strm3: "Multi\nLine\nString" # equivalent to the one above
 
 ## Numbers
 ### Integers
+Integers are 64-bit signed integers.
+
 ```yaml
 num1: +1
 num2: 2
@@ -69,6 +71,8 @@ num6: 0b1110101
 ```
 
 ### Floats
+Floating point numbers are either IEEE754 binary32 (single) or IEEE754 binary64 (double) numbers.
+
 ```yaml
 num7: +1.0
 num8: 3.1415
@@ -81,6 +85,8 @@ num14: -inf
 num15: nan
 num15: -nan
 ```
+
+Any NaN value (signalling NaN or quiet NaN, any sign and any payload bits) may be serialized as `nan` and `nan` may be deserialized to any NaN value too. `-nan` is allowed, but is equivalent to `nan`. Though you should not rely on it, is suggested to use a positive, quiet NaN with payload 0 (0x7fc00000 or 0x7ff8000000000000 for single and double respectively).
 
 ## Booleans
 ```yaml
@@ -181,3 +187,10 @@ key2: something
 ```
 
 I severely dislike that magic values (like `true`, `false` and maybe `null`) can only be identified after being parsed as a string. If you have a subtly malformed number, it would also just be interpreted as a string (e.g. `1ê-6` or maybe some invisible unicode codepoints/whitespace in there), when you actually want an error.
+
+### -nan
+from IEEE-754 (2008):
+```
+Conversion of a quiet NaN in a supported format to an external character sequence shall produce a language-defined one of “nan” or a sequence that is equivalent except for case (e.g., “NaN”), with an optional preceding sign. (This standard does not interpret the sign of a NaN.)
+```
+The sign is not used and it's optional. I personally think that there is not much of a difference. Why should I keep the sign, when the payload is ignored?

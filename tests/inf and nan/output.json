@@ -1,0 +1,8 @@
+{
+    "a": Infinity,
+    "b": Infinity,
+    "c": -Infinity,
+    "d": NaN,
+    "e": NaN,
+    "f": NaN
+}
