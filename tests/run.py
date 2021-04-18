@@ -15,15 +15,27 @@ def main():
     parser.add_argument("tests", nargs="*")
     args = parser.parse_args()
 
-    pass_string = "\x1b[32mPASS\x1b[0m"
-    fail_string = "\x1b[31mFAIL\x1b[0m"
+    green = lambda x: f"\x1b[32m{x}\x1b[0m"
+    red = lambda x: f"\x1b[31m{x}\x1b[0m"
+    pass_string = green("PASS")
+    fail_string = red("FAIL")
 
     tests = args.tests
     if len(tests) == 0:
         tests = os.listdir(".")
 
+    total_test_count = 0
+    failed_tests = []
+
+    def fail(test, message, debug=None):
+        print(f"{fail_string} ({message})")
+        if debug:
+            print(debug, file=sys.stderr)
+        failed_tests.append(test)
+
     for test in tests:
         if os.path.isdir(test):
+            total_test_count += 1
             res = subprocess.run(
                 [args.binary, os.path.join(test, "input.joml")], capture_output=True
             )
@@ -32,36 +44,39 @@ def main():
             print(f"# {test}: ", end="")
             if os.path.isfile(output_reference_path):
                 if res.returncode != 0:
-                    print(f"{fail_string} (parsing failed)")
-                    print(res.stderr, file=sys.stderr)
+                    fail("parsing failed", res.stderr)
                 else:
                     parsed = json.loads(res.stdout)
                     with open(output_reference_path) as f:
                         parsed_reference = json.load(f)
                     dump = lambda x: json.dumps(x, sort_keys=True)
                     if dump(parsed) != dump(parsed_reference):
-                        print(f"{fail_string} (output differs)")
-                        print(res.stdout, file=sys.stderr)
+                        fail("output differs", res.stdout)
                     else:
                         print(pass_string)
             elif os.path.isfile(error_reference_path):
                 if res.returncode == 0:
-                    print(f"{fail_string} (parsing succeeded)")
-                    print(res.stdout, file=sys.stderr)
+                    fail("parsing succeeded", res.stdout)
                 else:
                     with open(error_reference_path) as f:
                         error_reference = f.read()
                     if not error_reference in res.stderr.decode("utf-8"):
-                        print(f"{fail_string} (wrong error)")
-                        print(res.stderr, file=sys.stderr)
+                        fail("wrong error", res.stderr)
                     else:
                         print(pass_string)
 
             else:
                 print(fail_string)
-                sys.exit(
-                    f"Neither output.json nor error are present for testcase '{test}'"
-                )
+                sys.exit(f"Neither output.json nor error are present for test '{test}'")
+
+    if failed_tests:
+        print(
+            "Failed {} of {} total tests:".format(len(failed_tests), total_test_count)
+        )
+        for test in failed_tests:
+            print(test)
+    else:
+        print("All tests passed")
 
 
 if __name__ == "__main__":
