@@ -31,7 +31,11 @@ def run_test(args, test):
             fail("parsing failed", res.stderr.decode("utf-8"))
             return False
         else:
-            parsed = json.loads(res.stdout)
+            try:
+                parsed = json.loads(res.stdout)
+            except json.JSONDecodeError:
+                fail("no valid json output", res.stdout.decode("utf-8"))
+                return False
             with open(output_reference_path) as f:
                 parsed_reference = json.load(f)
             dump = lambda x: json.dumps(x, sort_keys=True)
