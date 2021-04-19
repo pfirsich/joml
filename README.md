@@ -159,13 +159,14 @@ I am not sure if strings should be utf-8 strings or should just be byte arrays. 
 
 | Language   | Behaviour                             |
 |------------|---------------------------------------|
+| C & C++    | bytes                                 |
+| Java       | error                                 |
 | JavaScript | unicode                               |
+| Lua        | bytes                                 |
 | Python 2   | bytes                                 |
 | Python 3   | unicode (unless using `bytes` object) |
 | Ruby       | bytes                                 |
-| Lua        | bytes                                 |
 | Rust       | error                                 |
-| Java       | error                                 |
 
 This is not simply a question of what `\xHH` should do, but rather a much bigger question of whether it should be allowed to specify non-UTF-8 strings in general and by extension if JOML should be allowed to serialize/deserialize them. All the other popular configuration languages (and JSON) do not allow non-unicode strings, but I think it could be very useful. Not enforcing an encoding at a level deeper than simply writing at the top of this document might lead to chaotic situations in which every does what they want though. For now the reference parser will read arbitrary bytes from `\xHH` escape sequences, but it's already a significant problem for the tests, because they are specified using JSON.
 
