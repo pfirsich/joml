@@ -4,7 +4,7 @@ This format is not intended to exchange structured data read and written by mach
 
 It should be easy to integrate, which means that a fully specification conformant parser should be easy to write and fairly small. To state it clearly: A key goal is simplicty.
 
-It's essentially a saner YAML/JSON (for humans) hybrid with **a bunch** of stuff taken from the TOML spec.
+It's essentially a saner subset of YAML or a JSON for configuration with **a bunch** of details taken from the TOML.
 
 ## Encoding
 * UTF-8
@@ -126,8 +126,32 @@ colors: {
 }
 ```
 
-## Parsers
+## Libraries
 I am developing a reference parser alongside this specification in [joml-cpp](https://github.com/pfirsich/joml-cpp).
+
+## Alternatives
+### JSON
+JSON is good for serializing data. There is always only one way to express what you want to represent, which is a very good thing. But sadly, there are no comments, which almost always is already a complete deal breaker. There are also no multi-line strings and some syntactic annoyances, such as no trailing commas or mandatory quoting of keys. JSON is good for data, but rarely for configuration.
+
+### YAML
+YAML is really huge. I wanted to check how YAML does multi-line strings, when deciding on how I want to do them in JOML and it turns out, there are 9 ways to quote strings in YAML. You actually have to look stuff up, when reading YAML files sometimes and I am convinced this should not happen - It's just a configuration file. The spec is gigantic too of course and YAML parsers are famous for not implementing it completely or implementing it incorrectly.
+
+### TOML
+On the one hand it is simple, but it is also very complex and surprising at times.
+
+This works:
+```toml
+dict = {a = 1, b = 2}
+```
+
+This doesn't:
+```toml
+dict = {
+    a = 1,
+    b = 2
+}
+```
+You can't just express whatever you like and the things that you can express, sometimes have special syntax that frankly often just looks weird and is unwieldy. I have in the past decided against TOML multiple times, because the files would have just looked silly. I feel like that with TOML I can do less things, but you need to know more (i.e. have to look stuff up). Also it's a lot harder to implement a parser for it.
 
 ## Open Questions
 ### UTF-8 in Strings
