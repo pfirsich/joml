@@ -169,12 +169,14 @@ I am not sure if strings should be utf-8 strings or should just be byte arrays. 
 | Rust       | error                                 |
 
 This is not simply a question of what `\xHH` should do, but rather a much bigger question of whether it should be allowed to specify non-UTF-8 strings in general and by extension if JOML should be allowed to serialize/deserialize them. All the other popular configuration languages (and JSON) do not allow non-unicode strings, but I think it could be very useful. Not enforcing an encoding at a level deeper than simply writing it at the top of this document might lead to chaotic situations in which everyone does what they want. For now the reference parser will read arbitrary bytes from `\xHH` escape sequences, but it's already a significant problem for the tests, because they are specified using JSON.
+Also this has a profound impact on the APIs of the parsers. For example in Python JOML strings would be `bytes` objects and not `str`/`unicode` objects. Similar problems would arise for Rust or Java. This has the potential to very annoying.
 
 ### Valid Keys
 Currently unquoted keys can be anything. They may include newlines or hashes. They may look arbitrarily weird, as long as they do not contain a colon. You can sort of emulate annotations (see below) with them `position (vec2): [0, 0]`, which is kind of cool, but I think in general, you can do too much stuff that looks confusing. I should restrict the valid characters of keys, but I need to think about to what subset exactly.
 
 ### Dictionaries
 I think that dictionaries should absolutely be ordered. In that case duplicate keys can be easily resolved by having a later occurence override the earlier one. It remains to be decided whether all elements should be saved, only the latest (in the document) value of a duplicate key should be saved or whether an error should be generated if a key is used multiple times.
+In YAML and TOML keys must be unique. The JSON RFC only recommends that keys be unique (via "SHOULD").
 
 ### Types / Annotations
 I would like to have had type-annotations in the past. Should it be possible to prepend values with a type (`position: (vec2) [0, 0], color: (color) [1, 0, 0]` or `bytes: <hex> "baadf00d"`) and the type name would be saved alongside the value.
