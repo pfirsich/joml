@@ -184,7 +184,7 @@ If the type name is a builtin type, it will do conversions.
 More examples:
 
 ```yaml
-# Remove limitations of JOML, for example make a dict not allow unique keys
+# Remove limitations of JOML, for example make a dict not allow duplicate keys
 dict: (unique) {
     a: 1
     a: 2 # ERROR!
