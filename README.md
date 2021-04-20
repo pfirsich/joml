@@ -41,6 +41,9 @@ str2: "Escape \"quote\" and backslash \\ with backslash"
 str3: "Arbitrary byte sequence with \x00\x01\x02"
 str4: "Unicode escapes: \u20ac (€) \U0001D49C (𝒜)"
 str5: "Other escape characters: \t, \n, \r, \f, \b" # the ones supported by JSON
+str6: "You can escape \
+       newlines by ending \
+       lines with a backslash"
 ```
 
 Multi-line strings also use double quotes and may use trimming
@@ -48,13 +51,11 @@ Multi-line strings also use double quotes and may use trimming
 strm1: "Multi
 Line
 String"
-# Trim whitespace at the start of the following line with a trailing backslash
-strm2: "\
-    Multi\
-    Line\
-    String\
-    "
-strm3: "Multi\nLine\nString" # equivalent to the one above
+strm2: "Multi\nLine\nString" # equivalent to the one above
+# If you want nicer looking (indented) multi-line strings, you can abuse newline escapes
+strm3: "  yaml:\
+      \n    key1: 1\
+      \n    key2: 2" # has science gone too far?
 ```
 
 ## Numbers
@@ -170,6 +171,7 @@ I am not sure if strings should be utf-8 strings or should just be byte arrays. 
 
 This is not simply a question of what `\xHH` should do, but rather a much bigger question of whether it should be allowed to specify non-UTF-8 strings in general and by extension if JOML should be allowed to serialize/deserialize them. All the other popular configuration languages (and JSON) do not allow non-unicode strings, but I think it could be very useful. Not enforcing an encoding at a level deeper than simply writing it at the top of this document might lead to chaotic situations in which everyone does what they want. For now the reference parser will read arbitrary bytes from `\xHH` escape sequences, but it's already a significant problem for the tests, because they are specified using JSON.
 Also this has a profound impact on the APIs of the parsers. For example in Python JOML strings would be `bytes` objects and not `str`/`unicode` objects. Similar problems would arise for Rust or Java. This has the potential to very annoying.
+*There is **very** little use in allowing non-unicode strings. Almost all cases that I can imagine are better solved in another way.*
 
 ### Valid Keys
 Currently unquoted keys can be anything. They may include newlines or hashes. They may look arbitrarily weird, as long as they do not contain a colon. You can sort of emulate annotations (see below) with them `position (vec2): [0, 0]`, which is kind of cool, but I think in general, you can do too much stuff that looks confusing. I should restrict the valid characters of keys, but I need to think about to what subset exactly.
