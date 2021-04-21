@@ -207,6 +207,18 @@ position: (type: "vec2", synchronize: true, precision: "half") {
 ```
 
 This would be cool, but needs to be justified WELL, because it increases complexity. I am not at all decided on the syntax. I needed this a bunch of times, but I think it's contrary to the goals of this language (low complexity). Though it does open the doors for an arbitrary amount of extension with fairly little effort.
+There is a test implementation for annotations in a joml-cpp branch: [here](https://github.com/pfirsich/joml-cpp/commit/7cc5a0ce8fd8346a9244e7cebb5f3ebf58e9947b#diff-10a5c886e83329d6d7764c68eec79f30912bb743ab7e6fe4fd25616bd186bc08R526-R536) and it's actually **way** less complicated, than I thought.
+
+There are additional reasons not to do it though. A conversion to YAML/JSON is not possible anymore and a bit like [HCL](https://github.com/hashicorp/hcl) some should probably be devised for converting (maybe not though?). But that makes the change bigger than I intially thought.
+
+Also some details have to sorted out, like when to terminate an annotation. One could say "until the first closing parenthesis", but that has weird error behaviour. For example when you forget a closing paren:
+```yaml
+a: (a: 1, b: 2 true
+b: false
+c: (meter) 12
+d: (69) 1.24
+```
+You still get valid JOML, but with a very long annotation. So one possibilty would be to terminate with a balanced closing parenthesis, but that makes for unhelpful errors, if you have too many opening brackets (the parser will simply point at the end of the document and say that the parentheses are unbalanced). But this gives the possibility of using JOML with more annotations as an annotation. Alternatively we could just disallow any opening parenthesis. What about this though?: `key: (a: ")"): true`.
 
 ## Notes For Later
 ### Mandatory String Quotation
@@ -240,3 +252,5 @@ They are very useful and good, but most programming languages' "toInt"/"toNumber
 
 ### Comments
 * There are no multi-line comments, because every usable editor on the planet will help you comment multiple lines trivially. The extra complexity, even if it is minimal, cannot be justified because of that.
+
+### Multi-Line Strings
