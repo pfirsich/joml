@@ -3,19 +3,57 @@
 	"name": "JOML",
 	"patterns": [
 		{
-			"include": "#keys"
-		},
-		{
-			"include": "#strings"
-		},
-		{
-			"include": "#constants"
+			"include": "#key-value-pairs"
 		},
 		{
 			"include": "#comments"
 		}
 	],
 	"repository": {
+		"key-value-pairs": {
+			"patterns": [
+				{
+					"begin": "(?=\")",
+					"end": "(?=\")",
+					"name": "meta.structure.dictionary.key.quoted.joml",
+					"patterns": [
+						{
+							"include": "#string"
+						}
+					]
+				},
+				{
+					"begin": "[^{[,]",
+					"end": "(?=:)",
+					"name": "meta.structure.dictionary.key.unquoted.joml"
+				},
+				{
+					"begin": "(?=:\\s*)",
+					"end": "(?=[\\s\\n]*})|(,)|(?=})",
+					"patterns": [
+						{
+							"include": "value"
+						}
+					]
+				}
+			]
+		},
+		"value": {
+			"patterns": [
+				{
+					"include": "constant"
+				},
+				{
+					"include": "string"
+				},
+				{
+					"include": "array"
+				},
+				{
+					"include": "dictionary"
+				}
+			]
+		},
 		"keys": {
 			"patterns": [
 				{
@@ -48,7 +86,7 @@
 				}
 			]
 		},
-		"constants": {
+		"constant": {
 			"patterns": [
 				{
 					"name": "constant.null.joml",
@@ -81,6 +119,29 @@
 				{
 					"name": "constant.numeric.integer.decimal.joml",
 					"match": "[+-]?[0-9]+"
+				}
+			]
+		},
+		"array": {
+			"begin": "\\[",
+			"end": "[\\s\\n]*\\]",
+			"name": "meta.structure.array.joml",
+			"patterns": [
+				{
+					"include": "#value"
+				},
+				{
+					"match": ",|\\n"
+				}
+			]
+		},
+		"dictionary": {
+			"begin": "{",
+			"end": "}",
+			"name": "meta.structure.dictionary.joml",
+			"patterns": [
+				{
+					"include": "#key-value-pairs"
 				}
 			]
 		},
