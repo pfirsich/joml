@@ -3,69 +3,49 @@
 	"name": "JOML",
 	"patterns": [
 		{
-			"include": "#key-value-pairs"
+			"include": "#comment"
 		},
 		{
-			"include": "#comments"
+			"include": "#key-value-pairs"
 		}
 	],
 	"repository": {
 		"key-value-pairs": {
 			"patterns": [
 				{
-					"begin": "(?=\")",
-					"end": "(?=\")",
-					"name": "meta.structure.dictionary.key.quoted.joml",
+					"include": "#key"
+				},
+				{
+					"name": "meta.structure.value.joml",
+					"begin": ":\\s*(\\([^)]+\\))?",
+					"beginCaptures": {
+						"1": {
+							"name": "support.type"
+						}
+					},
+					"end": "(?=,|}|$|\\n|#)",
 					"patterns": [
 						{
-							"include": "#string"
+							"include": "#value"
 						}
 					]
 				},
 				{
-					"begin": "[^{[,]",
-					"end": "(?=:)",
-					"name": "meta.structure.dictionary.key.unquoted.joml"
-				},
-				{
-					"begin": "(?=:\\s*)",
-					"end": "(?=[\\s\\n]*})|(,)|(?=})",
-					"patterns": [
-						{
-							"include": "value"
-						}
-					]
+					"include": "#comment"
 				}
 			]
 		},
-		"value": {
-			"patterns": [
-				{
-					"include": "constant"
-				},
-				{
-					"include": "string"
-				},
-				{
-					"include": "array"
-				},
-				{
-					"include": "dictionary"
-				}
-			]
-		},
-		"keys": {
+		"key": {
 			"patterns": [
 				{
 					"name": "keyword.key.unquoted.joml",
-					"match": "(?<=^|{|\\(|,)\\s*[^:\n\"#]+(?=:)",
-					"_match": "[^:]+"
+					"match": "[^\":#{,\\[][^\":#]*(?=:)"
 				},
 				{
 					"name": "keyword.key.quoted.joml",
-					"_begin": "\\b\"",
-					"_end": "\":",
-					"match": "(^|\\s)\"([^\"]|\\\\\")+\"(?=:)",
+					"_match": "\"([^\"\\\\]|\\\\.)+\"",
+					"begin": "\"",
+					"end": "(?<!\\\\)\"",
 					"patterns": [
 						{
 							"name": "constant.character.escape.joml",
@@ -75,7 +55,49 @@
 				}
 			]
 		},
-		"strings": {
+		"array": {
+			"name": "meta.structure.array.joml",
+			"begin": "\\[",
+			"end": "\\]",
+			"patterns": [
+				{
+					"include": "#value"
+				},
+				{
+					"match": ",|\\n"
+				},
+				{
+					"include": "#comment"
+				}
+			]
+		},
+		"dictionary": {
+			"name": "meta.structure.dictionary.joml",
+			"begin": "{",
+			"end": "}",
+			"patterns": [
+				{
+					"include": "#key-value-pairs"
+				}
+			]
+		},
+		"value": {
+			"patterns": [
+				{
+					"include": "#string"
+				},
+				{
+					"include": "#dictionary"
+				},
+				{
+					"include": "#array"
+				},
+				{
+					"include": "#constant"
+				}
+			]
+		},
+		"string": {
 			"name": "string.quoted.double.joml",
 			"begin": "\"",
 			"end": "\"",
@@ -122,30 +144,7 @@
 				}
 			]
 		},
-		"array": {
-			"begin": "\\[",
-			"end": "[\\s\\n]*\\]",
-			"name": "meta.structure.array.joml",
-			"patterns": [
-				{
-					"include": "#value"
-				},
-				{
-					"match": ",|\\n"
-				}
-			]
-		},
-		"dictionary": {
-			"begin": "{",
-			"end": "}",
-			"name": "meta.structure.dictionary.joml",
-			"patterns": [
-				{
-					"include": "#key-value-pairs"
-				}
-			]
-		},
-		"comments": {
+		"comment": {
 			"name": "comment.line.joml",
 			"begin": "#",
 			"end": "\\n"
