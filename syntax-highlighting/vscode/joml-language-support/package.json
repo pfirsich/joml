@@ -1,0 +1,25 @@
+{
+    "name": "joml-language-support",
+    "displayName": "JOML Language Support",
+    "description": "JOML Language Support",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.55.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "joml",
+            "aliases": ["JOML", "joml"],
+            "extensions": [".joml"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "joml",
+            "scopeName": "source.joml",
+            "path": "./syntaxes/joml.tmLanguage.json"
+        }]
+    }
+}
