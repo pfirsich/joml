@@ -17,7 +17,7 @@
 				},
 				{
 					"name": "meta.structure.value.joml",
-					"begin": ":",
+					"begin": "(?<=:)",
 					"end": "(?=,|}|$|\\n|#)",
 					"patterns": [
 						{
@@ -34,11 +34,10 @@
 			"patterns": [
 				{
 					"name": "keyword.key.unquoted.joml",
-					"match": "[^\":#{,\\[][^\":#]*(?=:)"
+					"match": "[^\":#{,\\[\\s][^\":#]*(?=:)"
 				},
 				{
 					"name": "keyword.key.quoted.joml",
-					"_match": "\"([^\"\\\\]|\\\\.)+\"",
 					"begin": "\"",
 					"end": "(?<!\\\\)\"",
 					"patterns": [
