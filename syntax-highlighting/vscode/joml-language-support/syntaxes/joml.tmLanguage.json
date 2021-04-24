@@ -3,18 +3,39 @@
 	"name": "JOML",
 	"patterns": [
 		{
-			"include": "#keywords"
+			"include": "#keys"
 		},
 		{
 			"include": "#strings"
+		},
+		{
+			"include": "#constants"
+		},
+		{
+			"include": "#comments"
 		}
 	],
 	"repository": {
-		"keywords": {
-			"patterns": [{
-				"name": "keyword.control.joml",
-				"match": "\\b(if|while|for|return)\\b"
-			}]
+		"keys": {
+			"patterns": [
+				{
+					"name": "keyword.key.unquoted.joml",
+					"match": "(?<=^|{|\\(|,)\\s*[^:\n\"#]+(?=:)",
+					"_match": "[^:]+"
+				},
+				{
+					"name": "keyword.key.quoted.joml",
+					"_begin": "\\b\"",
+					"_end": "\":",
+					"match": "(^|\\s)\"([^\"]|\\\\\")+\"(?=:)",
+					"patterns": [
+						{
+							"name": "constant.character.escape.joml",
+							"match": "\\\\."
+						}
+					]
+				}
+			]
 		},
 		"strings": {
 			"name": "string.quoted.double.joml",
@@ -23,9 +44,50 @@
 			"patterns": [
 				{
 					"name": "constant.character.escape.joml",
-					"match": "\\\\."
+					"match": "\\\\.|\\\\\\n"
 				}
 			]
+		},
+		"constants": {
+			"patterns": [
+				{
+					"name": "constant.null.joml",
+					"match": "\\bnull\\b"
+				},
+				{
+					"name": "constant.boolean.joml",
+					"match": "\\b(true|false)\\b"
+				},
+				{
+					"name": "constant.numeric.float.special.joml",
+					"match": "[+-]?(inf|nan)"
+				},
+				{
+					"name": "constant.numeric.float.joml",
+					"match": "[+-]?(([0-9]+\\.[0-9]*)|(\\.[0-9]+))([eE][-+]?[0-9]+)?|[+-]?[0-9]+[eE][+-]?[0-9]+"
+				},
+				{
+					"name": "constant.numeric.integer.binary.joml",
+					"match": "[+-]?0b[01]+"
+				},
+				{
+					"name": "constant.numeric.integer.octal.joml",
+					"match": "[+-]?0o[0-7]+"
+				},
+				{
+					"name": "constant.numeric.integer.hexadecimal.joml",
+					"match": "[+-]?0x[0-9a-fA-F]+"
+				},
+				{
+					"name": "constant.numeric.integer.decimal.joml",
+					"match": "[+-]?[0-9]+"
+				}
+			]
+		},
+		"comments": {
+			"name": "comment.line.joml",
+			"begin": "#",
+			"end": "\\n"
 		}
 	},
 	"scopeName": "source.joml"
