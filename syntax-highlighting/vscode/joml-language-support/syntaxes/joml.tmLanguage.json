@@ -17,12 +17,7 @@
 				},
 				{
 					"name": "meta.structure.value.joml",
-					"begin": ":\\s*(\\([^)]+\\))?",
-					"beginCaptures": {
-						"1": {
-							"name": "support.type"
-						}
-					},
+					"begin": ":",
 					"end": "(?=,|}|$|\\n|#)",
 					"patterns": [
 						{
@@ -83,6 +78,10 @@
 		},
 		"value": {
 			"patterns": [
+				{
+					"name": "support.type.annotation.joml",
+					"match": "\\([^)]+\\)"
+				},
 				{
 					"include": "#string"
 				},
