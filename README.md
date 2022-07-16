@@ -173,12 +173,20 @@ This is not simply a question of what `\xHH` should do, but rather a much bigger
 Also this has a profound impact on the APIs of the parsers. For example in Python JOML strings would be `bytes` objects and not `str`/`unicode` objects. Similar problems would arise for Rust or Java. This has the potential to very annoying.
 *There is **very** little use in allowing non-unicode strings. Almost all cases that I can imagine are better solved in another way.*
 
+Also I think most applications for JOML are configuration files, which should very, very rarely contain binary data. And with its rarity, you can justify a necessity to base64 or hex-encode the data.
+
 ### Valid Keys
 Currently unquoted keys can be anything. They may include newlines or hashes. They may look arbitrarily weird, as long as they do not contain a colon. You can sort of emulate annotations (see below) with them `position (vec2): [0, 0]`, which is kind of cool, but I think in general, you can do too much stuff that looks confusing. I should restrict the valid characters of keys, but I need to think about to what subset exactly.
+
+I think that weird stuff like braces and spaces should definitely be allowed, because you can emulate missing features (like annotations) and I have very often wanted to annotate fields with types (either like `position (vec2): [0, 0]` or maybe like `vec2 position: [0, 0]`)
 
 ### Dictionaries
 I think that dictionaries should absolutely be ordered. In that case duplicate keys can be easily resolved by having a later occurence override the earlier one. It remains to be decided whether all elements should be saved, only the latest (in the document) value of a duplicate key should be saved or whether an error should be generated if a key is used multiple times.
 In YAML and TOML keys must be unique. The JSON RFC only recommends that keys be unique (via "SHOULD").
+
+For every other configuration language I have used, their libraries have arguments in their issue trackers about keeping the order when loading or saving files. And every time I have stumbled upon these arguments I did so, because I needed that behaviour. Eventually every good library ends up supporting a way to keep the order when loading or when saving. Mostly I have needed it for roundtrip (de-)serialization of some sort. I also used it multiple times to simplify configurations (i.e. have a dictionary of rules that can be applied/checked in order instead of a list of objects).
+
+My opinion that this is the way to go solidified even more and I think for languages like C++, where no ordered map type is available and you would have to replace a `std::map` with a `std::vector<std::pair<...>>`, which is very unergonomic, libraries should be encouraged to add methods like `is_map` and `to_map`, to check for duplicate keys and to convert to a map-like type respectively. 
 
 ### Types / Annotations
 I would like to have had type-annotations in the past. Should it be possible to prepend values with a type (`position: (vec2) [0, 0], color: (color) [1, 0, 0]` or `bytes: <hex> "baadf00d"`) and the type name would be saved alongside the value.
@@ -211,7 +219,7 @@ There is a test implementation for annotations in a joml-cpp branch: [here](http
 
 There are additional reasons not to do it though. A conversion to YAML/JSON is not possible anymore and a bit like [HCL](https://github.com/hashicorp/hcl) some should probably be devised for converting (maybe not though?). But that makes the change bigger than I intially thought.
 
-Also some details have to sorted out, like when to terminate an annotation. One could say "until the first closing parenthesis", but that has weird error behaviour. For example when you forget a closing paren:
+Also some details have to be sorted out, like when to terminate an annotation. One could say "until the first closing parenthesis", but that has weird error behaviour. For example when you forget a closing paren:
 ```yaml
 a: (a: 1, b: 2 true
 b: false
@@ -219,6 +227,8 @@ c: (meter) 12
 d: (69) 1.24
 ```
 You still get valid JOML, but with a very long annotation. So one possibilty would be to terminate with a balanced closing parenthesis, but that makes for unhelpful errors, if you have too many opening brackets (the parser will simply point at the end of the document and say that the parentheses are unbalanced). But this gives the possibility of using JOML with more annotations as an annotation. Alternatively we could just disallow any opening parenthesis. What about this though?: `key: (a: ")"): true`.
+
+I think this is just too complicated, with too many subtle problems. It's just too cute and not useful enough to justify the extra complexity. I should not forget that the goal of this library is also to replace YAML with something much more simple.
 
 ## Notes For Later
 ### Mandatory String Quotation
